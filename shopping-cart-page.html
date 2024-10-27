@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .cart-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .cart-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+        }
+
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto auto;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .cart-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .item-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: #3498db;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quantity-btn {
+            background: #f8f9fa;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background: #e9ecef;
+        }
+
+        .remove-btn {
+            color: #e74c3c;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .remove-btn:hover {
+            color: #c0392b;
+        }
+
+        .cart-summary {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .checkout-btn:hover {
+            background: #2980b9;
+        }
+
+        .tracking-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tracking-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .tracking-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .tracking-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+            position: relative;
+        }
+
+        .step-dot {
+            width: 30px;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.3s;
+        }
+
+        .step-dot.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 15px;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: #e0e0e0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .cart-item {
+                grid-template-columns: 1fr auto;
+                gap: 0.5rem;
+            }
+
+            .item-image {
+                grid-column: 1/-1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cart-container">
+        <div class="cart-header">
+            <h1 class="cart-title">Shopping Cart</h1>
+            <span id="cart-count">0 items</span>
+        </div>
+        
+        <div id="cart-items" class="cart-items">
+            <!-- Cart items will be dynamically added here -->
+        </div>
+
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">$0.00</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span id="shipping">$5.00</span>
+            </div>
+            <div class="total-row">
+                <span>Total</span>
+                <span id="total">$0.00</span>
+            </div>
+            <button id="checkout-btn" class="checkout-btn">Place Order</button>
+            <script>// Get a reference to the button element
+                const placeOrderButton = document.getElementById('checkout-btn');
+                
+                // Add an event listener to the button
+                placeOrderButton.addEventListener('click', () => {
+                    // Redirect to the shopping cart page
+                    window.location.href = 'payment-page.html';
+                });</script>
+        </div>
+    </div>
+
+    <!-- <div id="tracking-modal" class="tracking-modal">
+        <div class="tracking-content">
+            <h2>Order Tracking</h2>
+            <div class="tracking-steps">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="tracking-step">
+                    <div class="step-dot active">1</div>
+                    <div class="step-label">Order Placed</div>
+                </div>
+                <div class="tracking-step">
+                    <div class="step-dot">2</div>
+                    <div class="step-label">Processing</div>
+                </div>
+                <div class="tracking-step">
+                    <div class="step-dot">3</div>
+                    <div class="step-label">Shipped</div>
+                </div>
+                <div class="tracking-step">
+                    <div class="step-dot">4</div>
+                    <div class="step-label">Delivered</div>
+                </div>
+            </div>
+            <button onclick="closeTrackingModal()" class="checkout-btn">Close</button>
+        </div>
+    </div> -->
+
+    <script>
+        // Initialize cart from localStorage
+        let cartItems = JSON.parse(localStorage.getItem('shopease_cart')) || [];
+        
+        function updateCartDisplay() {
+            const cartContainer = document.getElementById('cart-items');
+            const cartCount = document.getElementById('cart-count');
+            
+            if (cartItems.length === 0) {
+                cartContainer.innerHTML = '<div class="empty-cart"><h2>Your cart is empty</h2><p>Add some products to your cart</p></div>';
+                cartCount.textContent = '0 items';
+                return;
+            }
+
+            cartCount.textContent = `${cartItems.length} items`;
+            cartContainer.innerHTML = '';
+            
+            cartItems.forEach((item, index) => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" class="item-image">
+                    <div class="item-details">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-price">$${item.price.toFixed(2)}</span>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                        <span>${item.quantity || 1}</span>
+                        <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                    </div>
+                    <button class="remove-btn" onclick="removeItem(${index})">×</button>
+                `;
+                cartContainer.appendChild(cartItem);
+            });
+            
+            updateTotals();
+        }
+
+        function updateQuantity(index, change) {
+            cartItems[index].quantity = (cartItems[index].quantity || 1) + change;
+            if (cartItems[index].quantity < 1) {
+                removeItem(index);
+                return;
+            }
+            localStorage.setItem('shopease_cart', JSON.stringify(cartItems));
+            updateCartDisplay();
+        }
+
+        function removeItem(index) {
+            cartItems.splice(index, 1);
+            localStorage.setItem('shopease_cart', JSON.stringify(cartItems));
+            updateCartDisplay();
+        }
+
+        function updateTotals() {
+            const subtotal = cartItems.reduce((sum, item) => 
+                sum + (item.price * (item.quantity || 1)), 0);
+            const shipping = subtotal > 0 ? 5 : 0;
+            const total = subtotal + shipping;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('shipping').textContent = `$${shipping.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Order tracking functionality
+        let currentStep = 1;
+        const totalSteps = 4;
+        let trackingInterval;
+
+        function showTrackingModal() {
+            document.getElementById('tracking-modal').style.display = 'flex';
+            startOrderTracking();
+        }
+
+        function closeTrackingModal() {
+            document.getElementById('tracking-modal').style.display = 'none';
+            clearInterval(trackingInterval);
+            resetTracking();
+        }
+
+        function updateTrackingProgress() {
+            const dots = document.querySelectorAll('.step-dot');
+            const progressFill = document.querySelector('.progress-fill');
+            
+            dots.forEach((dot, index) => {
+                if (index < currentStep) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+
+            const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            progressFill.style.width = `${progressPercentage}%`;
+        }
+
+        function startOrderTracking() {
+            currentStep = 1;
+            updateTrackingProgress();
+            
+            trackingInterval = setInterval(() => {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateTrackingProgress();
+                } else {
+                    clearInterval(trackingInterval);
+                }
+            }, 2000); // Update every 2 seconds for demo purposes
+        }
+
+        function resetTracking() {
+            currentStep = 1;
+            updateTrackingProgress();
+        }
+
+        // Initialize checkout button
+        document.getElementById('checkout-btn').addEventListener('click', () => {
+            if (cartItems.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            showTrackingModal();
+        });
+
+        // Initial cart display
+        updateCartDisplay();
+    </script>
+</body>
+</html>

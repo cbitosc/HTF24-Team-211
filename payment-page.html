@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEase - Payment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        .order-summary {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+
+        .payment-methods {
+            margin-bottom: 2rem;
+        }
+
+        .payment-method {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-method.selected {
+            border-color: #3498db;
+            background-color: #f8f9fa;
+        }
+
+        .payment-method-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .payment-method img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .payment-details {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .payment-details.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn-pay {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-pay:hover {
+            background-color: #2980b9;
+        }
+
+        .confirmation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .confirmation-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .confirmation-icon {
+            font-size: 4rem;
+            color: #2ecc71;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .payment-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">$0.00</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span>$5.00</span>
+            </div>
+            <div class="total-row">
+                <span>Total</span>
+                <span id="total">$0.00</span>
+            </div>
+        </div>
+
+        <div class="payment-methods">
+            <h2>Select Payment Method</h2>
+            <div class="payment-method" data-method="card">
+                <div class="payment-method-header">
+                    <img src="images/credit-card.png" alt="Credit Card">
+                    <span>Credit/Debit Card</span>
+                </div>
+                <div class="payment-details">
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="1234 5678 9012 3456" maxlength="19">
+                    </div>
+                    <div class="form-group">
+                        <label>Cardholder Name</label>
+                        <input type="text" placeholder="John Doe">
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Expiry Date</label>
+                            <input type="text" placeholder="MM/YY" maxlength="5">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>CVV</label>
+                            <input type="text" placeholder="123" maxlength="3">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-method" data-method="paypal">
+                <div class="payment-method-header">
+                    <img src="images/paypal.png" alt="PayPal">
+                    <span>PayPal</span>
+                </div>
+                <div class="payment-details">
+                    <div class="form-group">
+                        <label>PayPal Email</label>
+                        <input type="email" placeholder="your@email.com">
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-method" data-method="bank">
+                <div class="payment-method-header">
+                    <img src="images/bank-transfer.png" alt="Bank Transfer">
+                    <span>Bank Transfer</span>
+                </div>
+                <div class="payment-details">
+                    <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="text" placeholder="Account Number">
+                    </div>
+                    <div class="form-group">
+                        <label>Bank Code</label>
+                        <input type="text" placeholder="Bank Code">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-pay">Pay Now</button>
+    </div>
+
+    <div class="confirmation-modal">
+        <div class="confirmation-content">
+            <div class="confirmation-icon">✓</div>
+            <h2>Payment Successful!</h2>
+            <p>Thank you for your order. Your order has been placed successfully.</p>
+            <p style="margin-top: 1rem;">Order ID: <span id="orderId"></span></p>
+            <button class="btn-pay" style="margin-top: 1.5rem;" onclick="window.location.href='index.html'">
+                Continue Shopping
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize from cart data
+        window.onload = function() {
+            const cartData = JSON.parse(localStorage.getItem('shopease_cart') || '[]');
+            const subtotal = cartData.reduce((sum, item) => sum + item.price, 0);
+            const shipping = 5.00;
+            const total = subtotal + shipping;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        };
+
+        // Payment method selection
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        paymentMethods.forEach(method => {
+            method.addEventListener('click', () => {
+                // Remove selection from other methods
+                paymentMethods.forEach(m => {
+                    m.classList.remove('selected');
+                    m.querySelector('.payment-details').classList.remove('active');
+                });
+                
+                // Select clicked method
+                method.classList.add('selected');
+                method.querySelector('.payment-details').classList.add('active');
+            });
+        });
+
+        // Handle payment
+        const payButton = document.querySelector('.btn-pay');
+        const confirmationModal = document.querySelector('.confirmation-modal');
+
+        payButton.addEventListener('click', () => {
+            // Simple validation
+            const selectedMethod = document.querySelector('.payment-method.selected');
+            if (!selectedMethod) {
+                alert('Please select a payment method');
+                return;
+            }
+
+            // Generate random order ID
+            const orderId = 'ORD' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            document.getElementById('orderId').textContent = orderId;
+
+            // Show confirmation
+            confirmationModal.style.display = 'flex';
+
+            // Clear cart
+            localStorage.removeItem('shopease_cart');
+        });
+
+        // Format card number input
+        const cardNumberInput = document.querySelector('input[placeholder="1234 5678 9012 3456"]');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s/g, '');
+                value = value.replace(/(\d{4})/g, '$1 ').trim();
+                e.target.value = value;
+            });
+        }
+
+        // Format expiry date input
+        const expiryInput = document.querySelector('input[placeholder="MM/YY"]');
+        if (expiryInput) {
+            expiryInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.slice(0, 2) + '/' + value.slice(2);
+                }
+                e.target.value = value;
+            });
+        }
+    </script>
+</body>
+</html>
