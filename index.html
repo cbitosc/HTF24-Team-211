@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEase - Your Online Shopping Destination</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                ShopEase
+            </div>
+
+            <nav class="nav-links">
+                <a href="#" class="active">Home</a>
+                <a href="#">Products</a>
+                <a href="#">Categories</a>
+                <a href="#">Deals</a>
+            </nav>
+ 
+            <div class="user-actions">
+                <a href="login.html" id="loginLink"><button id="loginButton"">Login</button></a>
+                <div class="cart-icon" id="cart">
+                    🛒 <span class="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Recommendations Section (Hidden by default) -->
+        <section class="recommendations hidden">
+            <h2>Recommended for You</h2>
+            <div id="recommended-products" class="product-grid">
+                <!-- Recommended products will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="filters">
+            <h2>Filter Products</h2>
+            <div class="filter-options">
+                <select id="category-filter">
+                    <option value="">All Categories</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="clothing">Clothing</option>
+                    <option value="books">Books</option>
+                </select>
+
+                <select id="price-filter">
+                    <option value="">All Prices</option>
+                    <option value="0-50">$0 - $50</option>
+                    <option value="51-100">$51 - $100</option>
+                    <option value="101-">$101+</option>
+                </select>
+
+                <select id="sort-filter">
+                    <option value="">Sort By</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Rating</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Product Grid -->
+        <section class="products-section">
+            <div id="product-grid" class="product-grid">
+                <!-- Products will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loading-spinner" class="loading-spinner hidden">
+            <div class="spinner"></div>
+        </div>
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="notification-toast" class="notification-toast hidden">
+        <span id="notification-message"></span>
+        <button class="close-notification">&times;</button>
+    </div>
+
+    <!-- Error Message Container -->
+    <div id="error-container" class="error-container hidden">
+        <div class="error-message"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
